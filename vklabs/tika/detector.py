@@ -14,16 +14,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# 
+#
 
-from .tika import getConfig
+from vklabs.tika import detectType1, callServer, ServerEndpoint
 
-def getParsers():
-    return getConfig('parsers')[1]
 
-def getMimeTypes():
-    return getConfig('mime-types')[1]
+def from_file(filename, config_path=None):
+    '''
+    Detects MIME type of specified file
+    :param filename: file whose type needs to be detected
+    :return: MIME type
+    '''
+    jsonOutput = detectType1('type', filename, config_path=config_path)
+    return jsonOutput[1]
 
-def getDetectors():
-    return getConfig('detectors')[1]
 
+def from_buffer(string, config_path=None):
+    '''
+    Detects MIME type of the buffered content
+    :param string: buffered content whose type needs to be detected
+    :return:
+    '''
+    status, response = callServer('put', ServerEndpoint, '/detect/stream', string,
+                                  {'Accept': 'text/plain'}, False, config_path=config_path)
+    return response

@@ -22,6 +22,7 @@ except ImportError:
     from pkgutil import extend_path
     __path__ = extend_path(__path__, __name__)
 
+
 def initVM():
     ''' back compat method for JCC based Tika'''
     return

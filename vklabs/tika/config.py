@@ -14,25 +14,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# 
 
-from .tika import detectLang1, callServer, ServerEndpoint
 
-def from_file(filename):
-    '''
-    Detects language of the file
-    :param filename: path to file whose language needs to be detected
-    :return:
-    '''
-    jsonOutput = detectLang1('file', filename)
-    return jsonOutput[1]
+from vklabs.tika import getConfig
 
-def from_buffer(string):
-    '''
-    Detects language of content in the buffer
-    :param string: buffered data
-    :return:
-    '''
-    status, response = callServer('put', ServerEndpoint, '/language/string', string,
-                                  {'Accept': 'text/plain'}, False)
-    return response
+
+def getParsers():
+    return getConfig('parsers')[1]
+
+
+def getMimeTypes():
+    return getConfig('mime-types')[1]
+
+
+def getDetectors():
+    return getConfig('detectors')[1]

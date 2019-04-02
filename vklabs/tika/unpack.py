@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-from .tika import parse1, callServer, ServerEndpoint
+from .vklabs.tika import parse1, callServer, ServerEndpoint
 import tarfile
 from io import BytesIO, TextIOWrapper
 import csv

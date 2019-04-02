@@ -14,25 +14,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# 
 
-from .tika import detectType1, callServer, ServerEndpoint
 
-def from_file(filename, config_path=None):
-    '''
-    Detects MIME type of specified file
-    :param filename: file whose type needs to be detected
-    :return: MIME type
-    '''
-    jsonOutput = detectType1('type', filename, config_path=config_path)
-    return jsonOutput[1]
+from vklabs.tika import detectLang1, callServer, ServerEndpoint
 
-def from_buffer(string, config_path=None):
+
+def from_file(filename):
     '''
-    Detects MIME type of the buffered content
-    :param string: buffered content whose type needs to be detected
+    Detects language of the file
+    :param filename: path to file whose language needs to be detected
     :return:
     '''
-    status, response = callServer('put', ServerEndpoint, '/detect/stream', string,
-                                  {'Accept': 'text/plain'}, False, config_path=config_path)
+    jsonOutput = detectLang1('file', filename)
+    return jsonOutput[1]
+
+
+def from_buffer(string):
+    '''
+    Detects language of content in the buffer
+    :param string: buffered data
+    :return:
+    '''
+    status, response = callServer('put', ServerEndpoint, '/language/string', string,
+                                  {'Accept': 'text/plain'}, False)
     return response

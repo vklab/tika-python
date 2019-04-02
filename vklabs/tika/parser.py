@@ -16,9 +16,9 @@
 # limitations under the License.
 #
 
-from .tika import parse1, callServer, ServerEndpoint
-import os
+from vklabs.tika.tika import parse1, callServer, ServerEndpoint
 import json
+
 
 def from_file(filename, serverEndpoint=ServerEndpoint, xmlContent=False, headers=None, config_path=None):
     '''
@@ -59,7 +59,8 @@ def from_buffer(string, serverEndpoint=ServerEndpoint, xmlContent=False, headers
     else:
         status, response = callServer('put', serverEndpoint, '/rmeta/xml', string, headers, False, config_path=config_path)
 
-    return _parse((status,response))
+    return _parse((status, response))
+
 
 def _parse(jsonOutput):
     '''
@@ -67,12 +68,12 @@ def _parse(jsonOutput):
     :param jsonOutput: JSON output from Tika Server
     :return: a dictionary having 'metadata' and 'content' values
     '''
-    parsed={}
+    parsed = {}
     if not jsonOutput:
         return parsed
-    
+
     parsed["status"] = jsonOutput[0]
-    if jsonOutput[1] == None or jsonOutput[1] == "":
+    if jsonOutput[1] is None or jsonOutput[1] == "":
         return parsed
     realJson = json.loads(jsonOutput[1])
 

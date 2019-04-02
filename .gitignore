@@ -9,3 +9,5 @@
 /tika/*/*.pyc
 .DS_Store
 /setup.cfg
+#env
+/project_vklabs_tika_python_v
