@@ -20,7 +20,14 @@ from vklabs.tika.tika import parse1, callServer, ServerEndpoint
 import json
 
 
-def from_file(filename, serverEndpoint=ServerEndpoint, xmlContent=False, headers=None, config_path=None):
+def from_file(
+    filename,
+    serverEndpoint=ServerEndpoint,
+    xmlContent=False,
+    headers=None,
+    config_path=None,
+    proxy={}
+):
     '''
     Parses a file for metadata and content
     :param filename: path to file which needs to be parsed
@@ -33,14 +40,42 @@ def from_file(filename, serverEndpoint=ServerEndpoint, xmlContent=False, headers
             'content' has a str value and metadata has a dict type value.
     '''
     if not xmlContent:
-        jsonOutput = parse1('all', filename, serverEndpoint, headers=headers, config_path=config_path)
+        jsonOutput = parse1(
+            'all',
+            filename,
+            serverEndpoint,
+            headers=headers,
+            config_path=config_path,
+            proxy=proxy
+        )
     else:
-        jsonOutput = parse1('all', filename, serverEndpoint, services={'meta': '/meta', 'text': '/tika', 'all': '/rmeta/xml'},
-                            headers=headers, config_path=config_path)
-    return _parse(jsonOutput)
+        jsonOutput = parse1(
+            'all',
+            filename,
+            serverEndpoint,
+            services={'meta': '/meta', 'text': '/tika', 'all': '/rmeta/xml'},
+            headers=headers,
+            config_path=config_path,
+            proxy=proxy
+        )
+
+    try:
+        return _parse(jsonOutput)
+    except Exception as e:
+        return {
+            "status": "failed",
+            "notes": "Unable to parse file",
+            "exception": repr(e)
+        }
 
 
-def from_buffer(string, serverEndpoint=ServerEndpoint, xmlContent=False, headers=None, config_path=None):
+def from_buffer(
+    string,
+    serverEndpoint=ServerEndpoint,
+    xmlContent=False,
+    headers=None,
+    config_path=None,
+):
     '''
     Parses the content from buffer
     :param string: Buffer value
@@ -55,9 +90,25 @@ def from_buffer(string, serverEndpoint=ServerEndpoint, xmlContent=False, headers
     headers.update({'Accept': 'application/json'})
 
     if not xmlContent:
-        status, response = callServer('put', serverEndpoint, '/rmeta/text', string, headers, False, config_path=config_path)
+        status, response = callServer(
+            'put',
+            serverEndpoint,
+            '/rmeta/text',
+            string,
+            headers,
+            False,
+            config_path=config_path,
+        )
     else:
-        status, response = callServer('put', serverEndpoint, '/rmeta/xml', string, headers, False, config_path=config_path)
+        status, response = callServer(
+            'put',
+            serverEndpoint,
+            '/rmeta/xml',
+            string,
+            headers,
+            False,
+            config_path=config_path,
+        )
 
     return _parse((status, response))
 

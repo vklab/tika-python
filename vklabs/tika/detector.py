@@ -19,13 +19,13 @@
 from vklabs.tika import detectType1, callServer, ServerEndpoint
 
 
-def from_file(filename, config_path=None):
+def from_file(filename, config_path=None, proxy={}):
     '''
     Detects MIME type of specified file
     :param filename: file whose type needs to be detected
     :return: MIME type
     '''
-    jsonOutput = detectType1('type', filename, config_path=config_path)
+    jsonOutput = detectType1('type', filename, config_path=config_path, proxy=proxy)
     return jsonOutput[1]
 
 

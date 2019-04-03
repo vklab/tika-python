@@ -19,13 +19,13 @@
 from vklabs.tika import detectLang1, callServer, ServerEndpoint
 
 
-def from_file(filename):
+def from_file(filename, proxy):
     '''
     Detects language of the file
     :param filename: path to file whose language needs to be detected
     :return:
     '''
-    jsonOutput = detectLang1('file', filename)
+    jsonOutput = detectLang1('file', filename, proxy=proxy)
     return jsonOutput[1]
 
 

@@ -127,8 +127,10 @@ except NameError:
     binary_string = bytes
 
 try:
+    import urllib as urllibreq
     from urllib import urlretrieve
 except ImportError:
+    import urllib.request as urllibreq
     from urllib.request import urlretrieve
 try:
     from urlparse import urlparse
@@ -184,7 +186,7 @@ Translator = os.getenv(
 TikaClientOnly = os.getenv('TIKA_CLIENT_ONLY', False)
 TikaServerClasspath = os.getenv('TIKA_SERVER_CLASSPATH', '')
 TikaStartupSleep = float(os.getenv('TIKA_STARTUP_SLEEP', 5))
-TikaStartupMaxRetry = int(os.getenv('TIKA_STARTUP_MAX_RETRY', 3))
+TikaStartupMaxRetry = int(os.getenv('TIKA_STARTUP_MAX_RETRY', 10))
 TikaJava = os.getenv("TIKA_JAVA", "java")
 
 Verbose = 0
@@ -301,7 +303,7 @@ def parseAndSave(option, urlOrPaths, outDir=None, serverEndpoint=ServerEndpoint,
 
 def parse(option, urlOrPaths, serverEndpoint=ServerEndpoint, verbose=Verbose, tikaServerJar=TikaServerJar,
           responseMimeType='application/json',
-          services={'meta': '/meta', 'text': '/tika', 'all': '/rmeta'}, rawResponse=False):
+          services={'meta': '/meta', 'text': '/tika', 'all': '/rmeta'}, rawResponse=False, proxy={}):
     '''
     Parse the objects and return extracted metadata and/or text in JSON format.
     :param option:
@@ -313,7 +315,7 @@ def parse(option, urlOrPaths, serverEndpoint=ServerEndpoint, verbose=Verbose, ti
     :param services:
     :return:
     '''
-    return [parse1(option, path, serverEndpoint, verbose, tikaServerJar, responseMimeType, services)
+    return [parse1(option, path, serverEndpoint, verbose, tikaServerJar, responseMimeType, services, proxy=proxy)
             for path in urlOrPaths]
 
 
@@ -327,7 +329,8 @@ def parse1(
     services={'meta': '/meta', 'text': '/tika', 'all': '/rmeta/text'},
     rawResponse=False,
     headers=None,
-    config_path=None
+    config_path=None,
+    proxy={}
 ):
     '''
     Parse the object and return extracted metadata and/or text in JSON format.
@@ -344,7 +347,7 @@ def parse1(
     '''
     headers = headers or {}
 
-    path, file_type = getRemoteFile(urlOrPath, TikaFilesPath)
+    path, file_type = getRemoteFile(urlOrPath, TikaFilesPath, proxy)
     headers.update({'Accept': responseMimeType, 'Content-Disposition': make_content_disposition_header(path)})
 
     if option not in services:
@@ -353,8 +356,17 @@ def parse1(
     if service == '/tika':
         responseMimeType = 'text/plain'
     headers.update({'Accept': responseMimeType, 'Content-Disposition': make_content_disposition_header(path)})
-    status, response = callServer('put', serverEndpoint, service, open(path, 'rb'),
-                                  headers, verbose, tikaServerJar, config_path=config_path, rawResponse=rawResponse)
+    status, response = callServer(
+        'put',
+        serverEndpoint,
+        service,
+        open(path, 'rb'),
+        headers,
+        verbose,
+        tikaServerJar,
+        config_path=config_path,
+        rawResponse=rawResponse,
+    )
 
     if file_type == 'remote':
         os.unlink(path)
@@ -368,7 +380,8 @@ def detectLang(
     verbose=Verbose,
     tikaServerJar=TikaServerJar,
     responseMimeType='text/plain',
-    services={'file': '/language/stream'}
+    services={'file': '/language/stream'},
+    proxy={}
 ):
     '''
     Detect the language of the provided stream and return its 2 character code as text/plain.
@@ -382,7 +395,7 @@ def detectLang(
     :return:
     '''
     paths = getPaths(urlOrPaths)
-    return [detectLang1(option, path, serverEndpoint, verbose, tikaServerJar, responseMimeType, services)
+    return [detectLang1(option, path, serverEndpoint, verbose, tikaServerJar, responseMimeType, services, proxy=proxy)
             for path in paths]
 
 
@@ -393,7 +406,8 @@ def detectLang1(
     verbose=Verbose,
     tikaServerJar=TikaServerJar,
     responseMimeType='text/plain',
-    services={'file': '/language/stream'}
+    services={'file': '/language/stream'},
+    proxy={}
 ):
     '''
     Detect the language of the provided stream and return its 2 character code as text/plain.
@@ -406,7 +420,7 @@ def detectLang1(
     :param services:
     :return:
     '''
-    path, mode = getRemoteFile(urlOrPath, TikaFilesPath)
+    path, mode = getRemoteFile(urlOrPath, TikaFilesPath, proxy=proxy)
     if option not in services:
         log.exception('Language option must be one of %s ' % binary_string(services.keys()))
         raise TikaException('Language option must be one of %s ' % binary_string(services.keys()))
@@ -436,7 +450,7 @@ def doTranslate(option, urlOrPaths, serverEndpoint=ServerEndpoint, verbose=Verbo
 
 def doTranslate1(option, urlOrPath, serverEndpoint=ServerEndpoint, verbose=Verbose, tikaServerJar=TikaServerJar,
                  responseMimeType='text/plain',
-                 services={'all': '/translate/all'}):
+                 services={'all': '/translate/all'}, proxy={}):
     '''
 
     :param option:
@@ -448,7 +462,7 @@ def doTranslate1(option, urlOrPath, serverEndpoint=ServerEndpoint, verbose=Verbo
     :param services:
     :return:
     '''
-    path, mode = getRemoteFile(urlOrPath, TikaFilesPath)
+    path, mode = getRemoteFile(urlOrPath, TikaFilesPath, proxy=proxy)
     srcLang = ""
     destLang = ""
 
@@ -476,7 +490,7 @@ def doTranslate1(option, urlOrPath, serverEndpoint=ServerEndpoint, verbose=Verbo
 
 def detectType(option, urlOrPaths, serverEndpoint=ServerEndpoint, verbose=Verbose, tikaServerJar=TikaServerJar,
                responseMimeType='text/plain',
-               services={'type': '/detect/stream'}):
+               services={'type': '/detect/stream'}, proxy={}):
     '''
     Detect the MIME/media type of the stream and return it in text/plain.
     :param option:
@@ -489,7 +503,7 @@ def detectType(option, urlOrPaths, serverEndpoint=ServerEndpoint, verbose=Verbos
     :return:
     '''
     paths = getPaths(urlOrPaths)
-    return [detectType1(option, path, serverEndpoint, verbose, tikaServerJar, responseMimeType, services)
+    return [detectType1(option, path, serverEndpoint, verbose, tikaServerJar, responseMimeType, services, proxy=proxy)
             for path in paths]
 
 
@@ -499,7 +513,8 @@ def detectType1(
     serverEndpoint=ServerEndpoint,
     verbose=Verbose, tikaServerJar=TikaServerJar,
     responseMimeType='text/plain',
-    services={'type': '/detect/stream'}, config_path=None
+    services={'type': '/detect/stream'}, config_path=None,
+    proxy={}
 ):
     '''
     Detect the MIME/media type of the stream and return it in text/plain.
@@ -512,7 +527,7 @@ def detectType1(
     :param services:
     :return:
     '''
-    path, mode = getRemoteFile(urlOrPath, TikaFilesPath)
+    path, mode = getRemoteFile(urlOrPath, TikaFilesPath, proxy=proxy)
     if option not in services:
         log.exception('Detect option must be one of %s' % binary_string(services.keys()))
         raise TikaException('Detect option must be one of %s' % binary_string(services.keys()))
@@ -553,8 +568,23 @@ def getConfig(option, serverEndpoint=ServerEndpoint, verbose=Verbose, tikaServer
     return (status, response)
 
 
-def callServer(verb, serverEndpoint, service, data, headers, verbose=Verbose, tikaServerJar=TikaServerJar,
-               httpVerbs={'get': requests.get, 'put': requests.put, 'post': requests.post}, classpath=None, rawResponse=False, config_path=None):
+def callServer(
+    verb,
+    serverEndpoint,
+    service,
+    data,
+    headers,
+    verbose=Verbose,
+    tikaServerJar=TikaServerJar,
+    httpVerbs={
+        'get': requests.get,
+        'put': requests.put,
+        'post': requests.post
+    },
+    classpath=None,
+    rawResponse=False,
+    config_path=None
+):
     '''
     Call the Tika Server, do some error checking, and return the response.
     :param verb:
@@ -593,7 +623,13 @@ def callServer(verb, serverEndpoint, service, data, headers, verbose=Verbose, ti
     if type(data) is unicode_string:
         encodedData = data.encode('utf-8')
 
-    resp = verbFn(serviceUrl, encodedData, headers=headers, verify=False)
+    resp = verbFn(
+        serviceUrl,
+        encodedData,
+        headers=headers,
+        verify=False,
+    )
+
     if verbose:
         print(sys.stderr, "Request headers: ", headers)
         print(sys.stderr, "Response headers: ", resp.headers)
@@ -625,6 +661,7 @@ def checkTikaServer(scheme="http", serverHost=ServerHost, port=Port, tikaServerJ
     urlp = urlparse(tikaServerJar)
     serverEndpoint = '%s://%s:%s' % (scheme, serverHost, port)
     jarPath = os.path.join(TikaJarPath, 'tika-server.jar')
+
     if 'localhost' in serverEndpoint or '127.0.0.1' in serverEndpoint:
         alreadyRunning = checkPortIsOpen(serverHost, port)
 
@@ -685,10 +722,10 @@ def startServer(tikaServerJar, java_path=TikaJava, serverHost=ServerHost, port=P
     # setup command string
     cmd_string = ""
     if not config_path:
-        cmd_string = '%s -cp %s org.apache.vklabs.tika.server.vklabs.tikaServerCli --port %s --host %s &' \
+        cmd_string = '%s -cp %s org.apache.tika.server.TikaServerCli --port %s --host %s &' \
                      % (java_path, classpath, port, host)
     else:
-        cmd_string = '%s -cp %s org.apache.vklabs.tika.server.vklabs.tikaServerCli --port %s --host %s --config %s &' \
+        cmd_string = '%s -cp %s org.apache.tika.server.TikaServerCli --port %s --host %s --config %s &' \
                      % (java_path, classpath, port, host, config_path)
 
     # Check that we can write to log path
@@ -741,7 +778,7 @@ def toFilename(url):
     return re.sub(r'[-\s]+', '-', value).strip("-")[-200:]
 
 
-def getRemoteFile(urlOrPath, destPath):
+def getRemoteFile(urlOrPath, destPath, proxy={}):
     '''
     Fetches URL to local path or just returns absolute path.
     :param urlOrPath: resource locator, generally URL or path
@@ -758,6 +795,9 @@ def getRemoteFile(urlOrPath, destPath):
         destPath = destPath + '/' + filename
         log.info('Retrieving %s to %s.' % (urlOrPath, destPath))
         try:
+            proxy = urllibreq.ProxyHandler(proxy)
+            opener = urllibreq.build_opener(proxy)
+            urllibreq.install_opener(opener)
             urlretrieve(urlOrPath, destPath)
         except IOError:
             # monkey patch fix for SSL/Windows per Tika-Python #54

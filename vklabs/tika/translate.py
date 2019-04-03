@@ -19,7 +19,7 @@
 from .vklabs.tika import doTranslate1, callServer, Translator, ServerEndpoint
 
 
-def from_file(filename, srcLang, destLang, serverEndpoint=ServerEndpoint):
+def from_file(filename, srcLang, destLang, serverEndpoint=ServerEndpoint, proxy={}):
     '''
     Traslates the content of source file to destination language
     :param filename: file whose contents needs translation
@@ -28,7 +28,7 @@ def from_file(filename, srcLang, destLang, serverEndpoint=ServerEndpoint):
     :param serverEndpoint: Tika server end point (Optional)
     :return: translated content
     '''
-    jsonOutput = doTranslate1(srcLang + ':' + destLang, filename, serverEndpoint)
+    jsonOutput = doTranslate1(srcLang + ':' + destLang, filename, serverEndpoint, proxy=proxy)
     return jsonOutput[1]
 
 
@@ -46,7 +46,7 @@ def from_buffer(string, srcLang, destLang, serverEndpoint=ServerEndpoint):
     return response
 
 
-def auto_from_file(filename, destLang, serverEndpoint=ServerEndpoint):
+def auto_from_file(filename, destLang, serverEndpoint=ServerEndpoint, proxy={}):
     '''
     Translates contents of a file to desired language by auto detecting the source language
     :param filename: file whose contents needs translation
@@ -54,7 +54,7 @@ def auto_from_file(filename, destLang, serverEndpoint=ServerEndpoint):
     :param serverEndpoint: Tika server end point (Optional)
     :return:
     '''
-    jsonOutput = doTranslate1(destLang, filename, serverEndpoint)
+    jsonOutput = doTranslate1(destLang, filename, serverEndpoint, proxy=proxy)
     return jsonOutput[1]
 
 
