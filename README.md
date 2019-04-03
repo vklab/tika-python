@@ -5,7 +5,7 @@
 Updates
 ===========
 - Forked from https://github.com/chrismattmann/tika-python
-- Clean code for readibility
+- Cleaned code for readibility
 - Added Proxy support
 
 
