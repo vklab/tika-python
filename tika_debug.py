@@ -1,4 +1,5 @@
 from vklabs.tika import parser
+from vklabs.tika import translate
 
 proxy = {
     'http': '',
@@ -16,6 +17,8 @@ def tika_run():
         print(pdf_dict)
     else:
         print("{}\n{}\n{}".format(pdf_dict["metadata"]["Author"], pdf_dict["metadata"]["title"], pdf_dict["content"]))
+
+    print(translate.from_file('https://www.kanopystreaming.com/sites/default/files/learningspanish.pdf', 'es', 'en'))
 
 
 if __name__ == '__main__':

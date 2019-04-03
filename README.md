@@ -201,7 +201,7 @@ kill -9 PID
 ```
 
 ```python
-import .vklabs.tika
+import vklabs.tika
 import os
 from tika import parser
 home = os.getenv('HOME')

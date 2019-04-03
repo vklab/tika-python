@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-from .vklabs.tika import doTranslate1, callServer, Translator, ServerEndpoint
+from vklabs.tika.tika import doTranslate1, callServer, Translator, ServerEndpoint
 
 
 def from_file(filename, srcLang, destLang, serverEndpoint=ServerEndpoint, proxy={}):
