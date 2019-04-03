@@ -182,7 +182,7 @@ ServerEndpoint = os.getenv(
     'TIKA_SERVER_ENDPOINT', 'http://' + ServerHost + ':' + Port)
 Translator = os.getenv(
     'TIKA_TRANSLATOR',
-    "org.apache.vklabs.tika.language.translate.Lingo24Translator")
+    "org.apache.tika.language.translate.Lingo24Translator")
 TikaClientOnly = os.getenv('TIKA_CLIENT_ONLY', False)
 TikaServerClasspath = os.getenv('TIKA_SERVER_CLASSPATH', '')
 TikaStartupSleep = float(os.getenv('TIKA_STARTUP_SLEEP', 5))
