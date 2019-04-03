@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='vklabs.tika',
-    version='0.0.2.0.1',
+    version='0.0.3',
     python_requires='>=3.6',
     packages=find_packages(),
     package_data={},
