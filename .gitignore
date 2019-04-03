@@ -14,3 +14,4 @@ __pycache__/
 /project_vklabs_tika_python_v
 *.pyc
 vklabs.tika_python.egg-info/
+vklabs.tika.egg-info/
