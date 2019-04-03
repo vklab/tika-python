@@ -1,6 +1,14 @@
 [![Build Status](https://travis-ci.org/chrismattmann/tika-python.svg?branch=master)](https://travis-ci.org/chrismattmann/tika-python)
 [![Coverage Status](https://coveralls.io/repos/github/chrismattmann/tika-python/badge.svg?branch=master)](https://coveralls.io/github/chrismattmann/tika-python?branch=master)
 
+
+Updates
+===========
+- Forked from https://github.com/chrismattmann/tika-python
+- Cleaned code for readibility
+- Added Proxy support
+
+
 tika-python
 ===========
 A Python port of the [Apache Tika](http://tika.apache.org/)
