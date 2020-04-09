@@ -218,6 +218,12 @@ parsed = parser.from_file(home + '/git/geotopicparser-utils/geotopics/polar.geot
 print parsed["metadata"]
 ```
 
+```
+# Deploy
+# update setup.py version then deploy
+  python deploy.py
+```
+
 New Command Line Client Tool
 ============================
 When you install Tika-Python you also get a new command
